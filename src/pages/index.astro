@@ -1,0 +1,38 @@
+---
+import Base from '../layouts/Base.astro';
+import { houses } from '../data/houses';
+import { disciplines } from '../data/disciplines';
+import { getChampionship } from '../lib/sheets/championship';
+
+const c = await getChampionship();
+const by = Object.fromEntries(houses.map(h => [h.slug, h]));
+const msg = { unconfigured:'La fuente de datos oficial aún no está configurada.', empty:'Todavía no hay resultados oficiales aprobados.', stale:'No se pudo actualizar; se muestran los últimos datos válidos y podrían estar desactualizados.', official:'' }[c.status];
+const rankRows = c.standings.length ? c.standings : houses.map((h, i) => ({ house:h.slug, points:0, position:i + 1, gap:0, tied:false }));
+const disciplineRows = houses.map(h => ({ house:h, scores: disciplines.map(d => c.byDiscipline[d.slug]?.[h.slug] ?? 0) }));
+const dominant = c.standings[0] ? by[c.standings[0].house] : null;
+---
+
+<Base title="Inicio">
+  <section class="hero" aria-labelledby="hero-title" data-dominant-house={dominant?.slug ?? 'none'} style={`--dominant:${dominant?.color ?? '#D7F34B'}`}>
+    <div class="hero-media" role="img" aria-label="Atleta en plena competencia"></div><div class="hero-scrim"></div>
+    <div class="hero-content wrap"><div class="hero-kicker eyebrow" data-reveal>Academia Las Américas <span>·</span> Sincelejo</div><p class="hero-season" data-reveal>ELITE CHAMPIONSHIP / {c.season}</p><h1 id="hero-title" class="hero-title" data-reveal><span>La Forja</span><em>de Campeones</em></h1><div class="hero-footer" data-reveal><p>Cuatro casas. Seis disciplinas.<br /><strong>Una sola historia.</strong></p><a class="btn p" href="#clasificacion">Ver clasificación <span>↘</span></a></div></div>
+    <div class="dominant-mark" aria-hidden="true">{dominant?.emoji ?? '✦'}</div><div class="dominant-badge"><span>CASA DOMINANTE</span><strong>{dominant?.name ?? 'EN DISPUTA'}</strong><small>{dominant ? `${rankRows[0].points} PTS · TEMPORADA ${c.season}` : 'Conecta los resultados oficiales'}</small></div><div class="hero-score" aria-label="Marcador de la temporada"><span>MARCADOR</span><strong>{rankRows[0]?.points ?? 0}</strong><small>PTS · CASA LÍDER</small></div><a class="scroll-cue" href="#clasificacion" aria-label="Bajar a clasificación">SCROLL <span>↓</span></a>
+  </section>
+
+  <section id="clasificacion" class="section-dark ranking-section"><div class="wrap"><div class="section-head"><div><p class="eyebrow">01 / Clasificación general</p><h2>La tabla<br /><em>no miente.</em></h2></div><p class="section-note">Última actualización<br /><strong>{c.updatedAt ? new Date(c.updatedAt).toLocaleString('es-CO') : 'Pendiente de conexión'}</strong></p></div>
+    {msg && <p class="notice" role="status">{msg}</p>}<div class="ranking-list" aria-label="Clasificación de casas">
+      {rankRows.map((s, i) => { const h = by[s.house]!; return <a class:list={['rank-row', { 'is-leader': c.standings.length > 0 && i === 0 }]} href={`/casas/${s.house}`} style={`--c:${h.color}`} data-rank-row data-reveal><span class="rank-position">{s.tied ? 'T' : ''}{s.position.toString().padStart(2, '0')}</span><span class="rank-crest" aria-hidden="true">{h.emoji}</span><span class="rank-name"><small>{i === 0 ? 'LÍDER ACTUAL' : `A ${s.gap} PTS DEL LÍDER`}</small>{h.name}</span><span class="rank-trend">{i === 0 ? '↑ 1' : '—'} </span><strong class="rank-points"><span data-count={s.points}>{s.points}</span><small>PTS</small></strong><span class="rank-arrow">↗</span></a> })}
+    </div></div></section>
+
+  <section id="casas" class="houses-section"><div class="wrap"><div class="section-head"><div><p class="eyebrow">02 / Nuestra identidad</p><h2>No eliges<br /><em>un color.</em></h2></div><p class="section-note">Una casa es una forma<br />de competir y vivir.</p></div><div class="house-immersive-grid">
+    {houses.map((h, i) => <a class="house-immersive" href={`/casas/${h.slug}`} style={`--c:${h.color}`} data-reveal><span class="house-index">0{i + 1}</span><span class="house-glyph" aria-hidden="true">{h.emoji}</span><div class="house-copy"><p class="eyebrow">{h.values}</p><h3>{h.name}</h3><p>{h.slogan}</p></div><span class="house-cta">Explorar casa ↗</span></a>)}
+  </div></div></section>
+
+  <section id="disciplinas" class="section-dark matrix-section"><div class="wrap"><div class="section-head"><div><p class="eyebrow">03 / Cada punto cuenta</p><h2>El terreno<br /><em>de juego.</em></h2></div><p class="section-note">Resultados por disciplina<br /><strong>Datos oficiales aprobados</strong></p></div><div class="matrix-toolbar" role="group" aria-label="Filtrar matriz de resultados"><button class="matrix-filter is-active" data-discipline-filter="all">Todas</button>{disciplines.map(d => <button class="matrix-filter" data-discipline-filter={d.slug}>{d.name}</button>)}</div><div class="results-matrix" data-matrix><div class="matrix-row matrix-head"><span>Casa</span>{disciplines.map(d => <span data-column={d.slug}>{d.name}</span>)}<span>Total</span></div>{disciplineRows.map(row => <div class="matrix-row" data-house-row><span class="matrix-house"><i style={`background:${row.house.color}`} aria-hidden="true">{row.house.emoji}</i>{row.house.name}</span>{row.scores.map((score, i) => <span data-cell={disciplines[i].slug}>{score || '—'}</span>)}<strong>{row.scores.reduce((a, b) => a + b, 0)}</strong></div>)}</div><p class="matrix-caption">Selecciona una disciplina para aislar sus resultados y comparar el rendimiento de cada casa.</p></div></section>
+
+  <script type="module">
+    const runMotion = async () => { const { gsap } = await import('https://cdn.jsdelivr.net/npm/gsap@3.12.5/+esm'); if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return; gsap.from('[data-reveal]', { opacity: 0, y: 28, duration: .9, stagger: .08, ease: 'power3.out' }); gsap.from('.hero-media', { scale: 1.12, duration: 1.8, ease: 'power3.out' }); document.querySelectorAll('[data-count]').forEach((el) => { const value = Number(el.dataset.count || 0); gsap.fromTo(el, { textContent: 0 }, { textContent: value, duration: 1.4, delay: .35, snap: { textContent: 1 }, ease: 'power2.out' }); }); };
+    runMotion().catch(() => document.documentElement.classList.add('motion-fallback'));
+    document.querySelectorAll('[data-discipline-filter]').forEach((button) => button.addEventListener('click', () => { const selected = button.dataset.disciplineFilter; document.querySelectorAll('[data-discipline-filter]').forEach((b) => b.classList.toggle('is-active', b === button)); document.querySelectorAll('[data-cell]').forEach((cell) => cell.classList.toggle('is-muted', selected !== 'all' && cell.dataset.cell !== selected)); document.querySelectorAll('[data-column]').forEach((column) => column.classList.toggle('is-selected', column.dataset.column === selected)); }));
+  </script>
+</Base>

@@ -1,0 +1,4 @@
+{"name":"forja-de-campeones","type":"module","version":"0.1.0","private":true,
+"scripts":{"dev":"astro dev","build":"astro build","preview":"astro preview","test":"vitest run"},
+"dependencies":{"@astrojs/node":"^9.0.0","astro":"^5.0.0","zod":"^3.23.8"},
+"devDependencies":{"typescript":"^5.5.0","vitest":"^2.1.0"}}

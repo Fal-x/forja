@@ -1,0 +1,15 @@
+---
+import Base from '../../layouts/Base.astro';
+import { houses } from '../../data/houses';
+import { disciplines } from '../../data/disciplines';
+import { getChampionship } from '../../lib/sheets/championship';
+const d = disciplines.find(x => x.slug === Astro.params.slug);
+if (!d) return new Response(null, { status: 404 });
+const c = await getChampionship();
+const scores = c.byDiscipline[d.slug];
+const rows = scores ? houses.map(h => ({ h, p: scores[h.slug] ?? 0 })).sort((a, b) => b.p - a.p) : [];
+---
+<Base title={d.name}><section class="wrap" style="border:0"><p class="eyebrow">Disciplina</p><h1>{d.name}</h1><p style="max-width:560px;color:var(--text-2)">{d.description}</p>
+<h2 style="font-size:48px;margin-top:48px">Clasificación</h2>
+{rows.length ? <table><tbody>{rows.map((r, i) => <tr><td class="n">{i + 1}</td><td><span class="crest" style={`background:${r.h.color}`} aria-hidden="true">{r.h.emoji}</span>{r.h.name}</td><td class="pts">{r.p}</td></tr>)}</tbody></table> : <div class="empty" role="status">Sin resultados aprobados para esta disciplina.</div>}
+<h2 style="font-size:48px;margin-top:48px">Reglamento</h2><div class="empty">Reglamento pendiente: el HTML original no lo incluye. Ver REVIEW_REQUIRED.md.</div></section></Base>

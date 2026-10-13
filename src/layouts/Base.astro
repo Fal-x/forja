@@ -1,0 +1,13 @@
+---
+import '../styles/global.css';
+interface Props { title:string }
+const { title } = Astro.props;
+const path = Astro.url.pathname;
+const nav = [['/#clasificacion','Clasificación'],['/#casas','Casas'],['/#disciplinas','Disciplinas']] as const;
+---
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{title} · La Forja de Campeones</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=DM+Sans:wght@400;700&display=swap" rel="stylesheet"></head>
+<body><header class="site"><div class="wrap"><b><a href="/">LA FORJA</a></b><nav aria-label="Principal" style="display:flex;gap:24px">{nav.map(([h,l]) => <a href={h} aria-current={path === h ? 'page' : undefined}>{l}</a>)}</nav></div></header>
+<main><slot /></main></body></html>

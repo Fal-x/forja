@@ -12,8 +12,9 @@ npm install && npm test && npm run build && node dist/server/entry.mjs
 6. Arranca el proyecto con `npm run dev`, abre `/api/championship` y confirma que `status` sea `official`.
 
 `aprobado` acepta `sí`, `true`, `1`, `aprobado` o `x`. Solo las filas aprobadas, con una casa válida y puntos numéricos, suman. La portada refresca la fuente cada 60 segundos y conserva el último resultado válido si Sheets falla.
-## Despliegue
-Requiere hosting Node (Render, Railway, Fly.io, VPS): `npm run build` y `node dist/server/entry.mjs`; define las variables de entorno en el panel.
+## Despliegue en hosting compartido
+
+El proyecto genera una salida estática compatible con Hostinger y otros hostings sin Node. Ejecuta `npm run build` en tu computador y sube todo el contenido de `dist/` a `public_html/` usando el Administrador de archivos o SFTP. Los resultados de Google Sheets se leen durante el build; cada vez que cambien los puntos, vuelve a ejecutar el build y reemplaza `dist/`.
 ## Estado
 Implementado: modelo de datos, puntuación con empates, validación Zod, `/api/championship` (caché 60 s, último estado válido), inicio, casas, disciplinas, pruebas.
 Pendiente: ver REVIEW_REQUIRED.md y la lista de alcance en la respuesta del chat.

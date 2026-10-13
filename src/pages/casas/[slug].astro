@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 import { houses } from '../../data/houses';
 import { disciplines } from '../../data/disciplines';
 import { getChampionship } from '../../lib/sheets/championship';
+export function getStaticPaths() { return houses.map(house => ({ params: { slug: house.slug } })); }
 const h = houses.find(x => x.slug === Astro.params.slug);
 if (!h) return new Response(null, { status: 404 });
 const c = await getChampionship();

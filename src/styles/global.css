@@ -9,3 +9,4 @@
 .dominant-mark{font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif;font-style:normal;line-height:.8;filter:drop-shadow(0 16px 24px #0006)}
 .rank-row.is-leader{background:linear-gradient(90deg,color-mix(in srgb,var(--c) 20%,transparent),transparent 72%);border-bottom-color:var(--c)}.rank-row.is-leader .rank-position{color:var(--c)}.rank-crest,.house-glyph,.matrix-house i,.crest{font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif;font-style:normal}.house-glyph{font-size:230px}
 .hero-media{background-image:url('/forja/hero-forja.jpg')}
+.hero[data-dominant-house="none"] .dominant-badge{border-color:#DC143C}.hero[data-dominant-house="none"] .dominant-badge strong{color:#DC143C}.hero[data-dominant-house="none"] .dominant-mark{color:#DC143C}.hero[data-dominant-house="none"] .hero-score{border-color:#DC143C}

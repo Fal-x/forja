@@ -7,14 +7,15 @@ export function getStaticPaths() { return houses.map(house => ({ params: { slug:
 const h = houses.find(x => x.slug === Astro.params.slug);
 if (!h) return new Response(null, { status: 404 });
 const c = await getChampionship();
+const base = import.meta.env.BASE_URL;
 const st = c.standings.find(s => s.house === h.slug);
 const rank = st?.position ?? '—';
 ---
 
 <Base title={h.name}>
-  <section class="house-hero" data-house={h.slug} style={`--c:${h.color};--house-bg:url('/${h.slug}.png')`} aria-labelledby="house-title">
+  <section class="house-hero" data-house={h.slug} style={`--c:${h.color};--house-bg:url('${base}${h.slug}.png')`} aria-labelledby="house-title">
     <div class="house-hero-media" aria-hidden="true"></div><div class="house-hero-scrim" aria-hidden="true"></div>
     <div class="wrap house-hero-content"><div class="house-hero-top"><p class="eyebrow">Casa / {h.values}</p><span class="house-hero-rank">PUESTO <strong>{rank}</strong></span></div><div class="house-hero-bottom"><span class="house-hero-glyph" aria-hidden="true">{h.emoji}</span><div><h1 id="house-title">{h.name}</h1><p class="house-slogan">{h.slogan}</p></div><div class="house-hero-score"><small>PUNTAJE OFICIAL</small>{st ? <strong>{st.points}<i>PTS</i></strong> : <strong>—</strong>}<span>{st ? `${st.gap ? `A ${st.gap} PTS DEL LÍDER` : 'CASA DOMINANTE'}` : 'SIN RESULTADOS'}</span></div></div></div>
   </section>
-  <section class="wrap house-detail" style={`--c:${h.color}`}><div class="house-detail-grid"><div><p class="eyebrow">La identidad</p><p class="house-lead">{h.description}</p><p>{h.theme}</p></div><div><blockquote>«{h.verse}»<small>— {h.verseRef}</small></blockquote></div></div><div class="house-cry"><p class="eyebrow">Grito de casa</p><p>{h.cry}</p></div><h2>Rendimiento<br /><em>por disciplina.</em></h2>{st ? <table><thead><tr><th>Disciplina</th><th style="text-align:right">Puntos</th></tr></thead><tbody>{disciplines.map(d => <tr><td><a href={`/disciplinas/${d.slug}`}>{d.name}</a></td><td class="pts">{c.byDiscipline[d.slug]?.[h.slug] ?? '—'}</td></tr>)}</tbody></table> : <div class="empty" role="status">Aún no hay resultados oficiales aprobados.</div>}</section>
+  <section class="wrap house-detail" style={`--c:${h.color}`}><div class="house-detail-grid"><div><p class="eyebrow">La identidad</p><p class="house-lead">{h.description}</p><p>{h.theme}</p></div><div><blockquote>«{h.verse}»<small>— {h.verseRef}</small></blockquote></div></div><div class="house-cry"><p class="eyebrow">Grito de casa</p><p>{h.cry}</p></div><h2>Rendimiento<br /><em>por disciplina.</em></h2>{st ? <table><thead><tr><th>Disciplina</th><th style="text-align:right">Puntos</th></tr></thead><tbody>{disciplines.map(d => <tr><td><a href={`${base}disciplinas/${d.slug}`}>{d.name}</a></td><td class="pts">{c.byDiscipline[d.slug]?.[h.slug] ?? '—'}</td></tr>)}</tbody></table> : <div class="empty" role="status">Aún no hay resultados oficiales aprobados.</div>}</section>
 </Base>
